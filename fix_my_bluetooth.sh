@@ -124,5 +124,13 @@ systemctl daemon-reload || true
 systemctl enable fix-bluetooth.service || true
 systemctl restart fix-bluetooth.service || true
 
+if command -v dracut >/dev/null 2>&1; then
+    echo "🔧 Updating initramfs with dracut..."
+    dracut --force || echo "⚠️ dracut failed. Please run 'dracut --force' manually or update your initramfs."
+else
+    echo "⚠️ dracut not found. If your distro uses initramfs, install dracut or run update-initramfs manually."
+fi
+
 echo "✅ fix_my_bluetooth.sh completed."
+echo "   Please reboot your system now to apply the Bluetooth fix."
 echo "   If your system supports systemd, check service status with: systemctl status fix-bluetooth.service"
