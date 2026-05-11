@@ -102,7 +102,7 @@ else
 fi
 
 SERVICE_FILE="/etc/systemd/system/fix-bluetooth.service"
-cat <<'EOF' > "$SERVICE_FILE"
+cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=Fix MediaTek Bluetooth MT7902
 After=multi-user.target
@@ -110,10 +110,10 @@ After=multi-user.target
 [Service]
 Type=oneshot
 ExecStartPre=/usr/bin/sleep 5
-ExecStart=-/usr/bin/env modprobe -r btusb
-ExecStart=-/usr/bin/env modprobe -r btmtk
-ExecStart=/usr/bin/env modprobe btmtk
-ExecStart=/usr/bin/env modprobe btusb
+ExecStart=-/usr/bin/env rmmod btusb
+ExecStart=-/usr/bin/env rmmod btmtk
+ExecStart=/usr/sbin/insmod $DEST_DIR/btmtk.ko
+ExecStart=/usr/sbin/insmod $DEST_DIR/btusb.ko
 RemainAfterExit=yes
 
 [Install]

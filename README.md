@@ -97,6 +97,29 @@ Jika Anda ingin menjalankan proses ini secara otomatis, gunakan skrip baru:
 sudo bash fix_my_bluetooth.sh
 ```
 
+> [!TIP]
+> Script `fix_my_bluetooth.sh` telah diperbarui untuk menggunakan metode `insmod` secara langsung (berdasarkan temuan Anda), sehingga seharusnya sekarang sudah bisa berjalan otomatis.
+
+### 🛠️ Manual Fix (Jika Script Gagal)
+
+Jika script di atas tetap tidak berhasil, Anda bisa mencoba memuat module secara manual langsung dari folder source:
+
+```bash
+# Ganti 'linux-6.17' dengan versi kernel Anda yang ada di repository ini
+cd linux-6.17/drivers/bluetooth
+
+# Unload module bawaan
+sudo rmmod btusb 2>/dev/null || true
+sudo rmmod btmtk 2>/dev/null || true
+
+# Load module custom secara langsung
+sudo insmod btmtk.ko
+sudo insmod btusb.ko
+
+# Restart service bluetooth
+sudo systemctl restart bluetooth
+```
+
 
 # 📁 Repository
 
