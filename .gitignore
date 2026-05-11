@@ -1,0 +1,17 @@
+*.tar.xz
+*.tgz
+*.bz
+*.zip
+
+*.o
+*.o.d
+*.mod
+*.mod.c
+*.cmd
+*.ko
+*.rej
+*.order
+*.symvers
+
+
+.backup/
