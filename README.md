@@ -12,6 +12,16 @@ Dokumentasi ini menggabungkan:
 
 ---
 
+# 🙌 Credits
+
+Project community MT7902 driver:
+
+- OnlineLearningTutorials
+- Linux community contributors
+- MediaTek reverse engineering contributors
+
+---
+
 # 📌 Tentang Project
 
 Chipset **MediaTek MT7902** hingga saat ini belum memiliki dukungan penuh pada mainline Linux kernel.
@@ -40,7 +50,7 @@ Panduan ini telah diuji dan berhasil berjalan pada:
 | Model | Vivobook Go E1504FA / E1404FA |
 | Chipset | MediaTek MT7902 (WiFi 6E) |
 | OS | Ubuntu 24.04 / Ubuntu 25.10 |
-| Kernel | 6.17.x – 6.19.x |
+| Kernel | 6.17.0.20|
 | BIOS | E1504FA.308 |
 | Compiler | GCC 15.2.0 |
 
@@ -264,115 +274,103 @@ Bluetooth juga dapat diperbaiki menggunakan module custom.
 
 ---
 
-# ⚠️ Jika Terjadi Konflik Firmware
+# ⚠️ Jika Bluetooth Tidak Berfungsi
 
-Hapus firmware lama:
+Jika Bluetooth masih tidak muncul atau gagal aktif setelah instalasi driver WiFi, lakukan langkah berikut.
+
+---
+
+## 1️⃣ Kompilasi Driver Bluetooth
+
+Jika Anda ingin menjalankan proses ini secara otomatis, gunakan skrip baru:
 
 ```bash
-sudo rm /lib/firmware/mediatek/mt7902/BT_RAM_CODE_MT7902_1_1_hdr.bin.zst
+sudo bash fix_my_bluetooth.sh
 ```
 
-Firmware yang digunakan project ini:
+Atau lakukan langkah manual berikut ini dari root repository.
+
+Masih di dalam folder `mt7902_temp`:
 
 ```bash
-/lib/firmware/mediatek/BT_RAM_CODE_MT7902_1_1_hdr.bin.zst
+cd drivers/bluetooth
+make -C /lib/modules/$(uname -r)/build M=$PWD modules
 ```
 
 ---
 
-# 🔧 Compile Bluetooth Module
-
-Masuk ke direktori:
+## 2️⃣ Pasang Driver ke Sistem
 
 ```bash
-./linux-<kernel-version>/drivers/bluetooth
-```
+sudo cp btmtk.ko /lib/modules/$(uname -r)/kernel/drivers/bluetooth/
+sudo cp btusb.ko /lib/modules/$(uname -r)/kernel/drivers/bluetooth/
 
-Contoh:
-
-```bash
-./linux-6.16/drivers/bluetooth
-```
-
-Compile:
-
-```bash
-make
-```
-
-Module yang akan dihasilkan:
-
-```text
-btusb.ko
-btmtk.ko
-```
-
-Install module:
-
-```bash
-sudo rmmod btusb
-sudo rmmod btmtk
-
-sudo insmod btmtk.ko
-sudo insmod btusb.ko
+sudo depmod -a
 ```
 
 ---
 
-# 🔄 Rebuild Setelah Kernel Update
-
-Jika kernel diperbarui:
-
-```text
-6.17.0-20 -> 6.17.0-21
-```
-
-maka module lama tidak akan cocok lagi.
-
-Lakukan langkah berikut:
-
-## 1️⃣ Install Header Baru
+## 3️⃣ Install Firmware Bluetooth
 
 ```bash
-sudo apt install linux-headers-$(uname -r)
+sudo mkdir -p /lib/firmware/mediatek
+
+sudo cp ../../firmware/mediatek/BT_RAM_CODE_MT7902_1_1_hdr.bin /lib/firmware/mediatek/
 ```
 
 ---
 
-## 2️⃣ Rebuild Driver
+# 🔄 Permanent Bluetooth Fix (Auto Load Saat Boot)
+
+Agar Bluetooth otomatis aktif setiap laptop dinyalakan.
+
+---
+
+## 1️⃣ Buat systemd Service
 
 ```bash
-cd ~/dev/mt7902_temp/latest
-make clean
-make module_compile
+sudo nano /etc/systemd/system/fix-bluetooth.service
+```
+
+Isi file dengan:
+
+```ini
+[Unit]
+Description=Fix MediaTek Bluetooth MT7902
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=-/usr/sbin/modprobe -r btusb
+ExecStart=-/usr/sbin/modprobe -r btmtk
+ExecStart=/usr/sbin/modprobe btmtk
+ExecStart=/usr/sbin/modprobe btusb
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ---
 
-## 3️⃣ Replace Module Lama
+## 2️⃣ Aktifkan Service
 
 ```bash
-sudo cp *.ko /lib/modules/mt7902_custom/
-```
-
-Copy juga file dalam folder mt7921:
-
-```bash
-sudo cp mt7921/*.ko /lib/modules/mt7902_custom/
+sudo systemctl daemon-reload
+sudo systemctl enable fix-bluetooth.service
 ```
 
 ---
 
-## 4️⃣ Test Driver
+# 🔧 Sinkronisasi Driver & Firmware
+
+Agar seluruh module dan firmware dikenali saat booting awal.
 
 ```bash
-sudo /usr/local/bin/mt7902-setup.sh
+sudo dracut --force
+sudo reboot
 ```
-
-Jika berhasil:
-
-- reboot sistem
-- atau langsung gunakan WiFi
 
 ---
 
@@ -404,16 +402,6 @@ git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
 - Setelah update kernel biasanya perlu rebuild ulang
 - Simpan folder repository agar mudah rebuild
 - Jangan overwrite module bawaan kernel secara langsung
-
----
-
-# 🙌 Credits
-
-Project community MT7902 driver:
-
-- OnlineLearningTutorials
-- Linux community contributors
-- MediaTek reverse engineering contributors
 
 ---
 
