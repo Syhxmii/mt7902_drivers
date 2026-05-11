@@ -127,8 +127,23 @@ systemctl restart fix-bluetooth.service || true
 if command -v dracut >/dev/null 2>&1; then
     echo "🔧 Updating initramfs with dracut..."
     dracut --force || echo "⚠️ dracut failed. Please run 'dracut --force' manually or update your initramfs."
+elif command -v update-initramfs >/dev/null 2>&1; then
+    echo "🔧 Updating initramfs with update-initramfs..."
+    update-initramfs -u || echo "⚠️ update-initramfs failed. Please run 'update-initramfs -u' manually."
 else
-    echo "⚠️ dracut not found. If your distro uses initramfs, install dracut or run update-initramfs manually."
+    if [ -f /etc/debian_version ]; then
+        echo "⚠️ dracut not found. Installing dracut..."
+        apt-get update
+        DEBIAN_FRONTEND=noninteractive apt-get install -y dracut
+        if command -v dracut >/dev/null 2>&1; then
+            echo "🔧 Running dracut --force..."
+            dracut --force || echo "⚠️ dracut failed after install. Please run 'dracut --force' manually."
+        else
+            echo "❌ Failed to install dracut. Please install dracut or update-initramfs manually."
+        fi
+    else
+        echo "⚠️ Neither dracut nor update-initramfs found. Please install dracut or update-initramfs manually."
+    fi
 fi
 
 echo "✅ fix_my_bluetooth.sh completed."
