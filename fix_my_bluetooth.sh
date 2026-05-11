@@ -90,7 +90,8 @@ FIRMWARE_SRC=""
 if [ -f "$SCRIPT_DIR/mt7902_firmware/latest/BT_RAM_CODE_MT7902_1_1_hdr.bin" ]; then
     FIRMWARE_SRC="$SCRIPT_DIR/mt7902_firmware/latest/BT_RAM_CODE_MT7902_1_1_hdr.bin"
 elif [ -f "$SCRIPT_DIR/firmware/BT_RAM_CODE_MT7902_1_1_hdr.bin" ]; then
-    FIRMWARE_SRC="$SCRIPT_DIR/firmware/BT_RAM_CODE_MT7902_1_1_hdr.bin"i
+    FIRMWARE_SRC="$SCRIPT_DIR/firmware/BT_RAM_CODE_MT7902_1_1_hdr.bin"
+fi
 
 if [ -n "$FIRMWARE_SRC" ]; then
     echo "📁 Installing firmware from $FIRMWARE_SRC"
