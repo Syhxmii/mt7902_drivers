@@ -158,6 +158,9 @@ sudo dnf versionlock list
 ```
 (Catatan: Jika di masa depan Anda ingin membuka kunci kernel ini kembali, Anda cukup menjalankan perintah: sudo dnf versionlock clear)
 
+```bash
+reboot
+```
 ---
 
 ### 🎉 Selesai
