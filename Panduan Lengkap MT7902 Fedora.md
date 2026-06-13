@@ -51,7 +51,7 @@ sudo dnf install git build-essential kernel-devel-$(uname -r) kernel-headers-$(u
 
 2. **Unduh Source Code Driver MT7902:**
 ```bash
-git clone --depth 1 [https://github.com/OnlineLearningTutorials/mt7902_temp](https://github.com/OnlineLearningTutorials/mt7902_temp)
+git clone --depth 1 https://github.com/OnlineLearningTutorials/mt7902_temp
 cd mt7902_temp
 
 ```
