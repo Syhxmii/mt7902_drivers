@@ -130,7 +130,6 @@ sudo cp -r firmware/* /lib/firmware/mediatek/
 3. **Perbarui Dependensi Modul & Restart Laptop:**
 ```bash
 sudo depmod -a
-sudo reboot
 
 ```
 
