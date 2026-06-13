@@ -1,19 +1,16 @@
 Berikut adalah versi *raw plaintext* dalam format Markdown asli yang siap Anda salin (`Copy`) dan tempel (`Paste`) langsung ke dalam berkas `README.md` atau `tutorial.md` di repositori GitHub Anda:
 
-```markdown
 # Panduan Perbaikan Wi-Fi & Bluetooth MediaTek MT7902 di Fedora (Kernel 6.17)
 
 Panduan ini ditujukan untuk memperbaiki fungsionalitas Wi-Fi dan Bluetooth pada laptop dengan chipset **MediaTek MT7902** di Fedora Workstation yang mengalami masalah setelah pembaruan kernel sistem (misalnya ke Kernel 7.0+). 
 
 Langkah-langkah di bawah ini akan memandu Anda untuk melakukan *rollback* ke Kernel 6.17 yang stabil, menghapus kernel bermasalah, serta melakukan kompilasi driver secara manual.
 
----
 
 ## 🛠 Prasyarat & Persiapan
 
 Chipset MT7902 memerlukan driver luar (*out-of-tree driver*). Karena Wi-Fi internal mati, Anda harus menyambungkan HP Android/iPhone menggunakan kabel data ke laptop, lalu aktifkan fitur **USB Tethering** agar laptop mendapatkan koneksi internet sementara.
 
----
 
 ## 📋 Langkah-Langkah Perbaikan
 
@@ -28,8 +25,9 @@ Chipset MT7902 memerlukan driver luar (*out-of-tree driver*). Karena Wi-Fi inter
    Setelah masuk ke desktop, buka Terminal dan jalankan perintah berikut untuk mengecek versi persis kernel Anda:
    ```bash
    rpm -q kernel
+   ```
 
-```
+
 
 Hapus kernel 7.0 tersebut (ganti `7.0.x-xxx` sesuai dengan versi spesifik yang muncul di terminal Anda, misal: `7.0.1-200.fc43`):
 
@@ -136,11 +134,34 @@ sudo reboot
 
 ```
 
+---
 
+### Bagian 6: Mengunci Versi Kernel (Kernel Lock)
+
+Agar sistem Fedora tidak otomatis memperbarui kernel ke versi yang lebih baru (yang bisa merusak driver MT7902 ini kembali), Anda wajib mengunci versi kernel 6.17 yang saat ini digunakan menggunakan plugin versionlock.
+Install Plugin Versionlock:
+
+```bash
+sudo dnf install 'dnf-command(versionlock)'
+```
+
+Kunci Kernel Saat Ini:
+Jalankan perintah berikut untuk mengunci paket kernel, kernel-core, kernel-devel, dan kernel-headers yang sedang aktif:
+
+```bash
+sudo dnf versionlock add kernel-$(uname -r) kernel-core-$(uname -r) kernel-modules-$(uname -r) kernel-devel-$(uname -r) kernel-headers-$(uname -r)
+```
+Verifikasi Kunci:
+Untuk memastikan kernel sudah berhasil dikunci, Anda bisa mengecek daftarnya dengan perintah:
+
+```bash
+sudo dnf versionlock list
+```
+(Catatan: Jika di masa depan Anda ingin membuka kunci kernel ini kembali, Anda cukup menjalankan perintah: sudo dnf versionlock clear)
 
 ---
 
-## 🎉 Selesai
+### 🎉 Selesai
 
 Setelah laptop menyala kembali, lepas kabel tethering HP Anda. Wi-Fi dan Bluetooth MediaTek MT7902 seharusnya sudah aktif dan terdeteksi dengan normal di Fedora Anda.
 
@@ -150,9 +171,3 @@ Untuk memverifikasi perangkat, Anda bisa menggunakan perintah:
 nmcli device status
 # atau
 rfkill list all
-
-```
-
-```
-
-```
